@@ -2,6 +2,7 @@ import csv
 from collections import defaultdict
 
 CSV_PATH = "medicine.csv"
+OUTPUT_CSV_PATH = "day_total.csv"
 medicine_and_dose_delimeter = " "  # e.g. "牛蒡子 0.3"
 formula_delimeter = "，"  # e.g. "甘露消毒丹 4，牛蒡子 0.3" - a nonstandard comma
 
@@ -33,4 +34,14 @@ def build_day_medicine_dict():
     return output
 
 
-print(build_day_medicine_dict())
+day_medicine_dict = build_day_medicine_dict()
+rows = []
+for day in day_medicine_dict:
+    medicine_dict = day_medicine_dict[day]
+    for medicine, total in medicine_dict.items():
+        rows.append([day, medicine, round(total, 2)])
+
+with open(OUTPUT_CSV_PATH, "w", encoding="utf-8", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["day", "medicine", "total"])
+    writer.writerows(rows)
