@@ -1,18 +1,17 @@
 import csv
 from collections import defaultdict
 
-CSV_PATH = "medicine.csv"
 OUTPUT_CSV_PATH = "day_total.csv"
-medicine_and_dose_delimeter = " "  # e.g. "牛蒡子 0.3"
-formula_delimeter = "，"  # e.g. "甘露消毒丹 4，牛蒡子 0.3" - a nonstandard comma
+MEDICINE_AND_DOSE_DELIMETER = " "  # e.g. "牛蒡子 0.3"
+FORMULA_DELIMETER = "，"  # e.g. "甘露消毒丹 4，牛蒡子 0.3" - a nonstandard comma
 
 DAY_COLUMN_INDEX = 0
 FORMULA_COLUMN_INDEX = 1
 
 
-def build_day_medicine_dict():
+def build_day_medicine_dict(patient_formula_csv):
     output = defaultdict(lambda: defaultdict(lambda: 0.0))
-    with open(CSV_PATH, encoding="utf-8") as f:
+    with open(patient_formula_csv, encoding="utf-8") as f:
         reader = csv.reader(f)
         next(reader)  # skip header
         for row in reader:
@@ -24,8 +23,8 @@ def build_day_medicine_dict():
             formula = row[FORMULA_COLUMN_INDEX].strip()
             if formula == "":
                 raise Exception("Empty FORMULA")
-            for medicine_and_dose in formula.split(formula_delimeter):
-                parts = medicine_and_dose.strip().rsplit(medicine_and_dose_delimeter, 1)
+            for medicine_and_dose in formula.split(FORMULA_DELIMETER):
+                parts = medicine_and_dose.strip().rsplit(MEDICINE_AND_DOSE_DELIMETER, 1)
                 if len(parts) != 2:
                     raise Exception(f"Cannot parse medicine and amount {parts}")
                 medicine = parts[0]
@@ -34,14 +33,17 @@ def build_day_medicine_dict():
     return output
 
 
-day_medicine_dict = build_day_medicine_dict()
-rows = []
-for day in day_medicine_dict:
-    medicine_dict = day_medicine_dict[day]
-    for medicine, total in medicine_dict.items():
-        rows.append([day, medicine, round(total, 2)])
+def build_day_total_csv(patient_formula_csv):
+    day_medicine_dict = build_day_medicine_dict(patient_formula_csv)
+    rows = []
+    for day in day_medicine_dict:
+        medicine_dict = day_medicine_dict[day]
+        for medicine, total in medicine_dict.items():
+            rows.append([day, medicine, round(total, 2)])
 
-with open(OUTPUT_CSV_PATH, "w", encoding="utf-8", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(["day", "medicine", "total"])
-    writer.writerows(rows)
+    with open(OUTPUT_CSV_PATH, "w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["day", "medicine", "total"])
+        writer.writerows(rows)
+
+    return OUTPUT_CSV_PATH
