@@ -50,7 +50,9 @@ def generate_csv_per_day(totals_for_medicine_day: DefaultDict[Tuple[str, str], f
     return OUTPUT_DAY_CSV_PATH
 
 
-def generate_csv_per_month(totals_for_medicine_day: DefaultDict[Tuple[str, str], float]):
+def generate_csv_per_month(
+    totals_for_medicine_day: DefaultDict[Tuple[str, str], float],
+):
     month_medicine = defaultdict(lambda: 0.0)
     for (day, medicine), total in totals_for_medicine_day.items():
         month = day[:7]  # "2026-01-12" -> "2026-01"
