@@ -1,5 +1,6 @@
 import csv
 from collections import defaultdict
+from typing import DefaultDict, Tuple
 
 OUTPUT_DAY_CSV_PATH = "day_total.csv"
 OUTPUT_MONTH_CSV_PATH = "month_total.csv"
@@ -10,8 +11,10 @@ DAY_COLUMN_INDEX = 0
 FORMULA_COLUMN_INDEX = 1
 
 
-def build_day_medicine_dict(patient_formula_csv):
-    output = defaultdict(lambda: defaultdict(lambda: 0.0))
+def get_totals_for_medicine_day(
+    patient_formula_csv,
+) -> DefaultDict[Tuple[str, str], float]:
+    output = defaultdict(lambda: 0.0)
     with open(patient_formula_csv, encoding="utf-8") as f:
         reader = csv.reader(f)
         next(reader)  # skip header
@@ -30,17 +33,14 @@ def build_day_medicine_dict(patient_formula_csv):
                     raise Exception(f"Cannot parse medicine and amount {parts}")
                 medicine = parts[0]
                 dose = float(parts[1])
-                output[date][medicine] += dose
+                output[(date, medicine)] += dose
     return output
 
 
-def build_day_total_csv(patient_formula_csv):
-    day_medicine_dict = build_day_medicine_dict(patient_formula_csv)
+def generate_csv_per_day(totals_for_medicine_day: DefaultDict[Tuple[str, str], float]):
     rows = []
-    for day in day_medicine_dict:
-        medicine_dict = day_medicine_dict[day]
-        for medicine, total in medicine_dict.items():
-            rows.append([day, medicine, round(total, 2)])
+    for (day, medicine), total in totals_for_medicine_day.items():
+        rows.append([day, medicine, round(total, 2)])
 
     with open(OUTPUT_DAY_CSV_PATH, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
@@ -50,13 +50,11 @@ def build_day_total_csv(patient_formula_csv):
     return OUTPUT_DAY_CSV_PATH
 
 
-def build_month_total_csv(patient_formula_csv):
-    day_medicine_dict = build_day_medicine_dict(patient_formula_csv)
+def generate_csv_per_month(totals_for_medicine_day: DefaultDict[Tuple[str, str], float]):
     month_medicine = defaultdict(lambda: 0.0)
-    for day, medicine_dict in day_medicine_dict.items():
+    for (day, medicine), total in totals_for_medicine_day.items():
         month = day[:7]  # "2026-01-12" -> "2026-01"
-        for medicine, total in medicine_dict.items():
-            month_medicine[(month, medicine)] += total
+        month_medicine[(month, medicine)] += total
 
     rows = []
     for (month, medicine), total in month_medicine.items():

@@ -1,9 +1,10 @@
-from build_day_total_csv import build_day_total_csv, build_month_total_csv
+from generate_csv import generate_csv_per_day, generate_csv_per_month, get_totals_for_medicine_day
 import gradio as gr
 
 
 def process(patient_formula_csv):
-    return build_day_total_csv(patient_formula_csv), build_month_total_csv(patient_formula_csv)
+    totals_for_medicine_day = get_totals_for_medicine_day(patient_formula_csv)
+    return generate_csv_per_day(totals_for_medicine_day), generate_csv_per_month(totals_for_medicine_day)
 
 
 gr.Interface(
