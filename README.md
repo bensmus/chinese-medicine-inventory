@@ -1,4 +1,6 @@
-Run python script to get "medicine, day" totals in day_total.csv.
-
-Turning "medicine, day" totals into "medicine, month" totals:
-`=sumifs(TOTALS, MEDICINES, TARGET_MEDICINE, DAYS, ">"&TARGET_MONTH, DAYS, "<="&EOMONTH(TARGET_MONTH,0)+1)`
+---
+title: chinese-medicine-inventory
+app_file: main.py
+sdk: gradio
+sdk_version: 6.10.0
+---
